@@ -42,12 +42,22 @@
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="101dp" />
 
+    <EditText
+        android:id="@+id/edtArquivo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Nome do arquivo"
+        android:inputType="textPersonName"
+        android:textColorLink="@color/colorPrimaryDark" />
+
     <Button
         android:id="@+id/btnCapturar"
         style="@style/Widget.AppCompat.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="30dp"
         android:text="Iniciar captura" />
 
 </LinearLayout>

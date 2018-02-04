@@ -10,9 +10,16 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -21,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tvZ;
     private TextView tvProblem;
     private Button btnCapturar;
+    private EditText edtArquivo;
     private Boolean liberarTamanho = false;
     ArrayList posicoes = new ArrayList();
     private SensorManager mSensorManager;
@@ -33,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvX = (TextView) findViewById(R.id.tvX);
         tvY = (TextView) findViewById(R.id.tvY);
         tvZ = (TextView) findViewById(R.id.tvZ);
+        edtArquivo = findViewById(R.id.edtArquivo);
         btnCapturar = (Button) findViewById(R.id.btnCapturar);
         mSensorManager = (SensorManager) getSystemService(getApplicationContext().SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -55,9 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(final SensorEvent event) {
-        if(event.values[1]<0){
 
-        }
         btnCapturar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -89,7 +96,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             tvX.setText("Aguardando ação");
             tvY.setText("Aguardando ação");
             tvZ.setText("Aguardando ação");
-            Toast.makeText(this, "Tamanho da lista criada: " + posicoes.size(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Tamanho da lista criada: " + posicoes.size(), Toast.LENGTH_SHORT).show();
+            try {
+                String nome;
+                nome = edtArquivo.getText().toString();
+                File myFile = new File("/sdcard/"+nome);
+                myFile.createNewFile();
+                FileOutputStream fOut = new FileOutputStream(myFile);
+                OutputStreamWriter myOutWriter =
+                        new OutputStreamWriter(fOut);
+                for(int i =0; i<posicoes.size(); i++) {
+                    myOutWriter.append(posicoes.get(i) + "\n");
+                }
+                myOutWriter.close();
+                fOut.close();
+                Toast.makeText(getBaseContext(),
+                        "Arquivo '"+nome+"'" + "criado na raiz do telefone.",
+                        Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(getBaseContext(), e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+
+
+
             liberarTamanho = false;
         }
     }
