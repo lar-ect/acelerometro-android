@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mAccelerometer, 500000);
+        mSensorManager.registerListener(this, mAccelerometer, 50000);
     }
 
     @Override
