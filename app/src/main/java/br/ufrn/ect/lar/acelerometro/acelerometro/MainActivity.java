@@ -1,9 +1,11 @@
 package br.ufrn.ect.lar.acelerometro.acelerometro;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +22,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private TextView tvX;
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tvZ;
     private TextView tvProblem;
     private Button btnCapturar;
-    private EditText edtArquivo;
+    private Button captura;
     private Boolean liberarTamanho = false;
     ArrayList posicoes = new ArrayList();
     private SensorManager mSensorManager;
@@ -41,15 +46,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tvX = (TextView) findViewById(R.id.tvX);
         tvY = (TextView) findViewById(R.id.tvY);
         tvZ = (TextView) findViewById(R.id.tvZ);
-        edtArquivo = findViewById(R.id.edtArquivo);
+        String value = "";
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            value = extras.getString("nomePasta");
+            //Toast.makeText(this, value, Toast.LENGTH_SHORT).show();
+        }
         btnCapturar = (Button) findViewById(R.id.btnCapturar);
+        captura = (Button) findViewById(R.id.captura);
+        final String finalValue = value;
+        captura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(),SelecaoMovimentoActivity.class);
+                intent.putExtra("nomePasta", finalValue);
+                intent.putExtra("statusPasta",true);
+                startActivity(intent);
+            }
+        });
         mSensorManager = (SensorManager) getSystemService(getApplicationContext().SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, mAccelerometer, 50000);
+        mSensorManager.registerListener(this, mAccelerometer, 500);
     }
 
     @Override
@@ -98,8 +119,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             tvZ.setText("Aguardando ação");
             //Toast.makeText(this, "Tamanho da lista criada: " + posicoes.size(), Toast.LENGTH_SHORT).show();
             try {
+                Bundle extras = getIntent().getExtras();
+                String nomePasta = "";
+                String botao = "";
+                if (extras != null) {
+                    nomePasta = extras.getString("nomePasta");
+                    botao = extras.getString("botaoClicado");
+                }
+                String auxiliarArquivo = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(new Date());
                 String nome;
-                nome = edtArquivo.getText().toString();
+                File folder = new File("/sdcard/"+nomePasta);
+                boolean success = true;
+                if (!folder.exists()) {
+                    success = folder.mkdirs();
+                }
+                nome = nomePasta+"/"+botao+auxiliarArquivo+".csv";
+                //Toast.makeText(this, nome, Toast.LENGTH_SHORT).show();
                 File myFile = new File("/sdcard/"+nome);
                 myFile.createNewFile();
                 FileOutputStream fOut = new FileOutputStream(myFile);
@@ -117,9 +152,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Toast.makeText(getBaseContext(), e.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
-
-
-
             liberarTamanho = false;
         }
     }
